@@ -8,6 +8,28 @@ The alarm data consists of:
 - latitude
 - image (a URL to an image related to the alarm)
 
+Resultant JSON Schema:
+
+```JSON
+{
+    "properties": {
+        "image": {
+            "type": "string"
+        },
+        "latitude": {
+            "type": "number"
+        },
+        "longtitude": {
+            "type": "number"
+        },
+        "status": {
+            "type": "string"
+        }
+    },
+    "type": "object"
+}
+```
+
 ## Pre-reqs
 
 You will need an [Azure Event Grid topic](https://docs.microsoft.com/en-us/azure/event-grid/custom-event-quickstart-portal#create-a-custom-topic)
@@ -16,7 +38,7 @@ You will need an [Azure Event Grid topic](https://docs.microsoft.com/en-us/azure
 
 On the command line run:
 
-dotnet run EventTopicURL EventResourcePath EventKey FalseImageURL TrueImageURL EventInterval
+`dotnet run EventTopicURL EventResourcePath EventKey FalseImageURL TrueImageURL EventInterval`
 
 where:
 
@@ -27,11 +49,11 @@ where:
 - TrueImageURL is the URL to an image that can be used for a true positive event (i.e. cause for concern).
 - EventInterval is the number of milliseconds to pause between each Event being published. Must be greater than 0.
 
-You can also build a Docker image using the included Dockerfile: 
+You can also build a Docker image using the included Dockerfile such as: 
 
-e.g. docker build --rm -f Dockerfile -t alarmsiotsimulator:latest .
+`docker build --rm -f Dockerfile -t alarmsiotsimulator:latest .`
 
 The container can then be run with a similar command line to above:
 
-docker run alarmsiotsimulator EventTopicURL EventResourcePath EventKey FalseImageURL TrueImageURL EventInterval
+`docker run alarmsiotsimulator EventTopicURL EventResourcePath EventKey FalseImageURL TrueImageURL EventInterval`
 
