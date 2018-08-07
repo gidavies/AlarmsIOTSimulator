@@ -1,5 +1,3 @@
-// JsonContent Class packages
-
 namespace alarms
 {
     public class Alarm

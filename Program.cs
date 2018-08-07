@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
-// JsonContent Class packages
-
 namespace alarms
 {
     class IOTSimulator
@@ -164,7 +162,7 @@ namespace alarms
 
             return (longtitude, latitude);
         }
-
+        
         private static string GetAlarmImage()
         {
             // Return either the good (e.g. cat) or bad (e.g. gang) image

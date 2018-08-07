@@ -1,6 +1,4 @@
 using System.Net.Http;
-
-// JsonContent Class packages
 using Newtonsoft.Json;
 using System.Text;
 
