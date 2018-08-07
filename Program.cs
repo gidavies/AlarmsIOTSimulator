@@ -5,16 +5,12 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 
 // JsonContent Class packages
-using Newtonsoft.Json;
-using System.Text;
-
 
 namespace alarms
 {
-    // Reference https://docs.microsoft.com/en-us/dotnet/csharp/tutorials/console-webapiclient 
     class IOTSimulator
     {
-        // Nice to haves?
+        // Future params?
         // TL, TR, BL, BR for long, lat?
         // Status weighting?
         // Alarm image weighting?
@@ -32,8 +28,6 @@ namespace alarms
         private static string _falseAlarmImageURL = null;
         private static string _trueAlarmImageURL = null;
         
-        
-        // Command line:
         // IOTSimulator 
         static void Main(string[] args)
         {
@@ -61,8 +55,6 @@ namespace alarms
             }
 
             Console.Write("Alarms will be sent every " + _eventInterval + "ms.");
-            //Console.Write("Press any key to exit... ");
-            //Console.ReadKey();
 
             SimulateAlarms().Wait();
         }
@@ -193,30 +185,5 @@ namespace alarms
             
             return alarmImage;
         }
-    }
-
-    public class Alarm
-    {
-        public string status { get; set; }
-        public double longtitude { get; set; }
-        public double latitude { get; set; }
-        public string image { get; set; }
-    }
-
-    public class AlarmEvent
-    {
-        public string topic { get; set; }
-        public string subject { get; set; }
-        public string id { get; set; }
-        public string eventType { get; set; }
-        public string eventTime { get; set; }
-        public Alarm data { get; set; }
-    }
-
-    public class JsonContent : StringContent
-    {
-        public JsonContent(object obj) :
-            base(JsonConvert.SerializeObject(obj), Encoding.UTF8, "application/json")
-        { }
     }
 }
