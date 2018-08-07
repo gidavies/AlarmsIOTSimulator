@@ -16,7 +16,7 @@ You will need an [Azure Event Grid topic](https://docs.microsoft.com/en-us/azure
 
 On the command line run:
 
-dotnet run <EventTopicURL> <EventResourcePath> <EventKey> <FalseImageURL> <TrueImageURL> <EventInterval (int in ms)>
+dotnet run EventTopicURL EventResourcePath EventKey FalseImageURL TrueImageURL EventInterval
 
 where:
 
