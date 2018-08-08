@@ -26,6 +26,11 @@ namespace alarms
         private static string _falseAlarmImageURL = null;
         private static string _trueAlarmImageURL = null;
 
+        // Locations for simulated IOT devices
+        private static int _numberDevices = 20;
+
+        private static Alarm[] _devices;
+
         // Hold boundary conditions for longtitude and latitude
         // Don't need to calculate more than once
         private static int _integralMaxLat;
@@ -52,9 +57,9 @@ namespace alarms
         // IOTSimulator 
         static void Main(string[] args)
         {
-            string usageOutput = "Usage: dotnet run <EventTopicURL> <EventResourcePath> <EventKey> <FalseImageURL> <TrueImageURL> <EventInterval (int in ms)>";
+            string usageOutput = "Usage: dotnet run <EventTopicURL> <EventResourcePath> <EventKey> <FalseImageURL> <TrueImageURL> <EventInterval (int in ms)> <NumberDevices>";
             
-            if (args.Length < 6)
+            if (args.Length < 5)
             {
                 System.Console.WriteLine("Please enter arguments.");
                 System.Console.WriteLine(usageOutput);
@@ -67,19 +72,40 @@ namespace alarms
             _falseAlarmImageURL = args[3];
             _trueAlarmImageURL = args[4];
             
-            bool test = int.TryParse(args[5], out _eventInterval);
-            if (test == false)
+            // If the interval arg is supplied, override the default
+            if ( args.Length > 5 && args[5] != null)
             {
-                System.Console.WriteLine("Please enter an int for the milliseconds between event publishing.");
-                System.Console.WriteLine(usageOutput);
-                return;
+                bool testInterval = int.TryParse(args[5], out _eventInterval);
+            }
+            
+            // If the devices arg is supplied, override the default
+            if (args.Length > 6 && args[6] != null)
+            {
+                bool testDevices = int.TryParse(args[6], out _numberDevices);
             }
 
             SetLocationBoundaries(_maxLat, _minLat, _maxLong, _minLong);
+            SetDevices();
 
             Console.Write("Alarms will be sent every " + _eventInterval + "ms.");
 
             SimulateAlarms().Wait();
+        }
+
+        private static void SetDevices()
+        {
+            // Create a fixed set of devices
+            _devices = new Alarm[_numberDevices];
+
+            // Add location into each Alarm
+            for (int i = 0; i < _devices.Length; i++)
+            {
+                _devices[i] = new Alarm();
+                _devices[i].deviceId = i;
+                var location = GetAlarmLocation();
+                _devices[i].longtitude = location.longtitude;
+                _devices[i].latitude = location.latitude;
+            }
         }
 
         private static async Task SimulateAlarms()
@@ -92,41 +118,42 @@ namespace alarms
             {
                 try
                 {    
-                    // Create a new alarm
-                    var location = GetAlarmLocation();
-                    Alarm reading = new Alarm {
-                        status = GetAlarmStatus(), 
-                        longtitude = location.longtitude, 
-                        latitude = location.latitude, 
-                        image = GetAlarmImage() };
-
-                    // Create a new event
-                    AlarmEvent alarmEvent = new AlarmEvent {
-                        topic = _eventTopicResource,
-                        subject = "Alarm", 
-                        id = Guid.NewGuid().ToString(),
-                        eventType = "recordInserted", 
-                        eventTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFK"),
-                        data = reading };
-
-                    // Event Grid data is an array with one element
-                    AlarmEvent[] alarmEvents = { alarmEvent };
-
-                    // Post the data
-                    HttpResponseMessage response = await _client.PostAsync(_eventTopicEndpoint, new JsonContent(alarmEvents));
-
-                    if (response.IsSuccessStatusCode)
+                    // For each device, send a new alarm, keeping the location static
+                    for (int i = 0; i < _devices.Length; i++)
                     {
-                        Console.WriteLine("\n" + reading.status + " alarm sent. Longtitude: " 
-                        + reading.longtitude + " latitude: " + reading.latitude
-                        + " image: " + reading.image);
+                        _devices[i].status = GetAlarmStatus();
+                        _devices[i].image = GetAlarmImage();
+                        
+                        // Create a new event
+                        AlarmEvent alarmEvent = new AlarmEvent {
+                            topic = _eventTopicResource,
+                            subject = "Alarm", 
+                            id = Guid.NewGuid().ToString(),
+                            eventType = "recordInserted", 
+                            eventTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFK"),
+                            data = _devices[i] };
+
+                        // Event Grid data is an array with one element
+                        AlarmEvent[] alarmEvents = { alarmEvent };
+
+                        // Post the data
+                        HttpResponseMessage response = await _client.PostAsync(_eventTopicEndpoint, new JsonContent(alarmEvents));
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            Console.WriteLine("\n Device " + _devices[i].deviceId
+                            + ". Status: " + _devices[i].status + ". Longtitude: " 
+                            + _devices[i].longtitude + ". Latitude: " + _devices[i].latitude
+                            + ". Image: " + _devices[i].image);
+                        }
                     }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine("Error sending alarm:" + e.Message);
                 }
-
+                
+                // Pause specified interval before the next batch of alarms
                 Thread.Sleep(_eventInterval);
             }
         }
@@ -159,12 +186,12 @@ namespace alarms
 
         private static (decimal longtitude, decimal latitude) GetAlarmLocation()
         {
-            Random latRandom = new Random(Environment.TickCount);
+            Random latRandom = new Random(Guid.NewGuid().GetHashCode());
             int latIntegral = latRandom.Next(_integralMinLat, _integralMaxLat + 1);
             int latFractional = latRandom.Next(_fractionalMinLat, _fractionalMaxLat + 1);
             decimal latitude = latIntegral + (latFractional / 1000000m);
 
-            Random longRandom = new Random(Environment.TickCount);
+            Random longRandom = new Random(Guid.NewGuid().GetHashCode());
             int longIntegral = longRandom.Next(_integralMinLong, _integralMaxLong + 1);
             int longFractional = latRandom.Next(_fractionalMinLong, _fractionalMaxLong + 1);
             decimal longtitude = longIntegral + (longFractional / 1000000m);
