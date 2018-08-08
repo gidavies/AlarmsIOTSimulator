@@ -67,3 +67,6 @@ The container can then be run with a similar command line to above:
 
 `docker run alarmsiotsimulator EventTopicURL EventResourcePath EventKey FalseImageURL TrueImageURL EventInterval NumberDevices MaxLat MinLat MaxLong MinLong StatusWeighting`
 
+Alternatively the [image is available on DockerHub](https://hub.docker.com/r/gdavi/alarms-iot-simulator/) to use immediately, in which case the command line will be:
+
+`docker run gdavi/alarms-iot-simulator EventTopicURL EventResourcePath EventKey FalseImageURL TrueImageURL EventInterval NumberDevices MaxLat MinLat MaxLong MinLong StatusWeighting`
