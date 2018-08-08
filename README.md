@@ -3,6 +3,7 @@ A .NET Core console app to publish simple alarm data to an Azure Event Grid topi
 
 The alarm data consists of:
 
+- device id
 - status (green | amber | red)
 - longtitude
 - latitude
@@ -13,6 +14,9 @@ Resultant JSON Schema:
 ```JSON
 {
     "properties": {
+        "deviceId": {
+            "type": "number"
+        },
         "image": {
             "type": "string"
         },
@@ -32,22 +36,28 @@ Resultant JSON Schema:
 
 ## Pre-reqs
 
-You will need an [Azure Event Grid topic](https://docs.microsoft.com/en-us/azure/event-grid/custom-event-quickstart-portal#create-a-custom-topic)
+You will need an [Azure Event Grid topic](https://docs.microsoft.com/en-us/azure/event-grid/custom-event-quickstart-portal#create-a-custom-topic).
 
 ## Usage
 
 On the command line run:
 
-`dotnet run EventTopicURL EventResourcePath EventKey FalseImageURL TrueImageURL EventInterval`
+`dotnet run EventTopicURL EventResourcePath EventKey FalseImageURL TrueImageURL EventInterval NumberDevices MaxLat MinLat MaxLong MinLong StatusWeighting`
 
 where:
 
-- EventTopicURL is the endpoint for the Event Grid Topic and can be copied from the Overview blade.
-- EventResourcePath is the path to the resource and is of the form: /subscriptions/(your subscription id)/resourceGroups/(your resource group name)/providers/Microsoft.EventGrid/topics/(your EventGrid topic name).
-- EventKey is the key for the Event Grid Topic
-- FalseImageURL is the URL to an image that can be used for a false positive event (i.e. no cause for concern).
-- TrueImageURL is the URL to an image that can be used for a true positive event (i.e. cause for concern).
-- EventInterval is the number of milliseconds to pause between each Event being published. Must be greater than 0.
+Required:
+- EventTopicURL: the endpoint for the Event Grid Topic and can be copied from the Overview blade.
+- EventResourcePath: the path to the resource and is of the form: /subscriptions/(your subscription id)/resourceGroups/(your resource group name)/providers/Microsoft.EventGrid/topics/(your EventGrid topic name).
+- EventKey: the key for the Event Grid Topic
+
+Optional (must be added in this order):
+- FalseImageURL: the URL to an image that can be used for a false positive event (i.e. no cause for concern).
+- TrueImageURL: the URL to an image that can be used for a true positive event (i.e. cause for concern).
+- EventInterval: the number of milliseconds to pause between each Event being published. Must be greater than 0. Default = 5000.
+- NumberDevices: the number of simulated devices to create. Each will have a random but fixed location. Default = 20.
+- MaxLat, MinLat, MaxLong, MinLong all define the boundaries of a geographic rectangle within which the device locations will be set. All 4 are needed if used, and each much be a decimal with 6 signficant places e.g. 53.024562. Default = a large rectangle covering most of England.
+- StatusWeighting: Must be more than 3, the higher the proportionally more green status alerts. Default = 10.
 
 You can also build a Docker image using the included Dockerfile such as: 
 
@@ -55,5 +65,5 @@ You can also build a Docker image using the included Dockerfile such as:
 
 The container can then be run with a similar command line to above:
 
-`docker run alarmsiotsimulator EventTopicURL EventResourcePath EventKey FalseImageURL TrueImageURL EventInterval`
+`docker run alarmsiotsimulator EventTopicURL EventResourcePath EventKey FalseImageURL TrueImageURL EventInterval NumberDevices MaxLat MinLat MaxLong MinLong StatusWeighting`
 

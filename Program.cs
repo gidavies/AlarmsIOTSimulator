@@ -8,10 +8,6 @@ namespace alarms
 {
     class IOTSimulator
     {
-        // Future params?
-        // TL, TR, BL, BR for long, lat?
-        // Status weighting?
-        // Alarm image weighting?
         private static readonly HttpClient _client = new HttpClient();
 
         // Event Grid
@@ -20,7 +16,7 @@ namespace alarms
         private static string _eventAegSasKey = null;
 
         // Speed of event publishing, ms between each event
-        private static int _eventInterval = 1000;
+        private static int _eventInterval = 5000;
 
         // Images    
         private static string _falseAlarmImageURL = null;
@@ -30,6 +26,9 @@ namespace alarms
         private static int _numberDevices = 20;
 
         private static Alarm[] _devices;
+
+        // Status weighting to skew more green vs red and amber
+        private static int _statusWeighting = 10;
 
         // Hold boundary conditions for longtitude and latitude
         // Don't need to calculate more than once
@@ -57,7 +56,11 @@ namespace alarms
         // IOTSimulator 
         static void Main(string[] args)
         {
-            string usageOutput = "Usage: dotnet run <EventTopicURL> <EventResourcePath> <EventKey> <FalseImageURL> <TrueImageURL> <EventInterval (int in ms)> <NumberDevices>";
+            string usageOutput = "Usage: dotnet run <EventTopicURL> <EventResourcePath> <EventKey>"
+             + "\nOptional args:"
+             + "<FalseImageURL> <TrueImageURL> <EventInterval (ms)> <NumberDevices> "
+             + "<MaxLat> <MinLat> <MaxLong> <MinLong> <StatusWeighting>"
+             + "\nLatitude and Longtitude must all be decimal with 6 significant points and all 4 must be provided";
             
             if (args.Length < 5)
             {
@@ -72,18 +75,43 @@ namespace alarms
             _falseAlarmImageURL = args[3];
             _trueAlarmImageURL = args[4];
             
-            // If the interval arg is supplied, override the default
-            if ( args.Length > 5 && args[5] != null)
+            try
             {
-                bool testInterval = int.TryParse(args[5], out _eventInterval);
+                // If the interval arg is supplied, override the default
+                if ( args.Length > 5 && args[5] != null)
+                {
+                    int.TryParse(args[5], out _eventInterval);
+                }
+                
+                // If the devices arg is supplied, override the default
+                if (args.Length > 6 && args[6] != null)
+                {
+                    int.TryParse(args[6], out _numberDevices);
+                }
+
+                // If the boundary locations are supplied, override the defaults
+                if (args.Length > 10 && args[7] != null && args[8] != null && args[9] != null && args[10] != null)
+                {
+                    decimal.TryParse(args[7], out _maxLat);
+                    decimal.TryParse(args[8], out _minLat);
+                    decimal.TryParse(args[9], out _maxLong);
+                    decimal.TryParse(args[10], out _minLong);
+                }
+
+                // If the status weighting arg is supplied, override the default
+                if (args.Length > 11 && args[11] != null)
+                {
+                    int.TryParse(args[11], out _statusWeighting);
+                }
+            }
+            catch (Exception e) 
+            {
+                System.Console.WriteLine("Argument error: " + e.Message);
+                System.Console.WriteLine("Please enter arguments.");
+                System.Console.WriteLine(usageOutput);
+                return;
             }
             
-            // If the devices arg is supplied, override the default
-            if (args.Length > 6 && args[6] != null)
-            {
-                bool testDevices = int.TryParse(args[6], out _numberDevices);
-            }
-
             SetLocationBoundaries(_maxLat, _minLat, _maxLong, _minLong);
             SetDevices();
 
@@ -164,9 +192,9 @@ namespace alarms
             string alarmStatus = "green";
             Random random = new Random(Environment.TickCount);
             
-            // Simplistic weighting to make the majority (8/10) green
-            // 0 = red, 1 = amber, 2-9 = green
-            int value = random.Next(10);
+            // Simplistic weighting to make the majority green
+            // e.g. if _statusWeighting is 10 then 0 = red, 1 = amber, 2-9 = green
+            int value = random.Next(_statusWeighting);
 
             switch (value)
             {
@@ -223,8 +251,7 @@ namespace alarms
         private static void SetLocationBoundaries(decimal maxLat, decimal minLat, decimal maxLong, decimal minLong)
         {
             // Break the coordinates into integral and fractional components
-            // So that each part can be randomly created within the right
-            // boundaries
+            // So that each part can be randomly created within the right boundaries
             _integralMaxLat = (int) maxLat;
             decimal decFractionalMaxLat = maxLat - _integralMaxLat;
             _fractionalMaxLat = (int) (decFractionalMaxLat * GetMultiplyer(decFractionalMaxLat));
@@ -241,27 +268,8 @@ namespace alarms
             decimal decFractionalMinLong = minLong - _integralMinLong;
             _fractionalMinLong = (int) (decFractionalMinLong * GetMultiplyer(decFractionalMinLong)); 
 
-            // Deal with negative Longtitudes, so that when getting random number the min and max work
-            if (_fractionalMaxLong < 0 && _fractionalMinLong < 0)
-            {
-                // Swap them
-                int tmpMax = _fractionalMaxLong;
-                int tmpMin = _fractionalMinLong;
-
-                _fractionalMaxLong = tmpMin;
-                _fractionalMinLong = tmpMax;
-            } 
-
-            // Deal with negative Latitudes, so that when getting random number the min and max work
-            if (_fractionalMaxLat < 0 && _fractionalMinLat < 0)
-            {
-                // Swap them
-                int tmpMax = _fractionalMaxLat;
-                int tmpMin = _fractionalMinLat;
-
-                _fractionalMaxLat = tmpMin;
-                _fractionalMinLat = tmpMax;
-            } 
+            FlipIfNegative(ref _fractionalMaxLong, ref _fractionalMinLong);
+            FlipIfNegative(ref _fractionalMaxLat, ref _fractionalMinLat); 
         }
 
         private static int GetMultiplyer(decimal value)
@@ -291,6 +299,21 @@ namespace alarms
             }
 
             return factor;
+        }
+
+        private static void FlipIfNegative(ref int max, ref int min)
+        {
+            // Deal with negative Longitudes and Latitudes, 
+            // so that when getting random number the min and max work correctly
+            if (max < 0 && min < 0)
+            {
+                // Swap them
+                int tmpMax = max;
+                int tmpMin = min;
+
+                max = tmpMin;
+                min = tmpMax;
+            } 
         }
     }
 }
