@@ -54,9 +54,9 @@ Required:
 Optional (must be added in this order):
 - FalseImageURL: the URL to an image that can be used for a false positive event (i.e. no cause for concern).
 - TrueImageURL: the URL to an image that can be used for a true positive event (i.e. cause for concern).
-- EventInterval: the number of milliseconds to pause between each Event being published. Must be greater than 0. Default = 5000.
+- EventInterval: the number of milliseconds to pause between each event being published. Must be greater than 0. Default = 5000.
 - NumberDevices: the number of simulated devices to create. Each will have a random but fixed location. Default = 20.
-- MaxLat, MinLat, MaxLong, MinLong all define the boundaries of a geographic rectangle within which the device locations will be set. All 4 are needed if used, and each much be a decimal with 6 signficant places e.g. 53.024562. Default = a large rectangle covering most of England.
+- MaxLat, MinLat, MaxLong, MinLong: Define the boundaries of a geographic rectangle within which the device locations will be set. All 4 are needed if used, and each must be a decimal with 6 significant places e.g. 53.024562. Default = a large rectangle covering most of England.
 - StatusWeighting: Must be more than 3, the higher the proportionally more green status alerts. Default = 10.
 
 You can also build a Docker image using the included Dockerfile such as: 
