@@ -30,7 +30,7 @@ namespace alarms
         // Status weighting to skew more green vs red and amber
         private static int _statusWeighting = 10;
 
-        // Hold boundary conditions for longtitude and latitude
+        // Hold boundary conditions for longitude and latitude
         // Don't need to calculate more than once
         private static int _integralMaxLat;
         private static int _fractionalMaxLat;
@@ -60,7 +60,7 @@ namespace alarms
              + "\nOptional args:"
              + "<FalseImageURL> <TrueImageURL> <EventInterval (ms)> <NumberDevices> "
              + "<MaxLat> <MinLat> <MaxLong> <MinLong> <StatusWeighting>"
-             + "\nLatitude and Longtitude must all be decimal with 6 significant points and all 4 must be provided";
+             + "\nLatitude and Longitude must all be decimal with 6 significant points and all 4 must be provided";
             
             if (args.Length < 5)
             {
@@ -131,7 +131,7 @@ namespace alarms
                 _devices[i] = new Alarm();
                 _devices[i].deviceId = i;
                 var location = GetAlarmLocation();
-                _devices[i].longtitude = location.longtitude;
+                _devices[i].longitude = location.longitude;
                 _devices[i].latitude = location.latitude;
             }
         }
@@ -170,8 +170,8 @@ namespace alarms
                         if (response.IsSuccessStatusCode)
                         {
                             Console.WriteLine("\n Device " + _devices[i].deviceId
-                            + ". Status: " + _devices[i].status + ". Longtitude: " 
-                            + _devices[i].longtitude + ". Latitude: " + _devices[i].latitude
+                            + ". Status: " + _devices[i].status + ". Longitude: " 
+                            + _devices[i].longitude + ". Latitude: " + _devices[i].latitude
                             + ". Image: " + _devices[i].image);
                         }
                     }
@@ -212,7 +212,7 @@ namespace alarms
             return alarmStatus;
         }
 
-        private static (decimal longtitude, decimal latitude) GetAlarmLocation()
+        private static (decimal longitude, decimal latitude) GetAlarmLocation()
         {
             Random latRandom = new Random(Guid.NewGuid().GetHashCode());
             int latIntegral = latRandom.Next(_integralMinLat, _integralMaxLat + 1);
@@ -222,9 +222,9 @@ namespace alarms
             Random longRandom = new Random(Guid.NewGuid().GetHashCode());
             int longIntegral = longRandom.Next(_integralMinLong, _integralMaxLong + 1);
             int longFractional = latRandom.Next(_fractionalMinLong, _fractionalMaxLong + 1);
-            decimal longtitude = longIntegral + (longFractional / 1000000m);
+            decimal longitude = longIntegral + (longFractional / 1000000m);
 
-            return (longtitude, latitude);
+            return (longitude, latitude);
         }
 
         private static string GetAlarmImage()

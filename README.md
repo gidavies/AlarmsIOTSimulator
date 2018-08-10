@@ -23,7 +23,7 @@ Resultant JSON Schema:
         "latitude": {
             "type": "number"
         },
-        "longtitude": {
+        "longitude": {
             "type": "number"
         },
         "status": {
