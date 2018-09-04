@@ -50,10 +50,11 @@ Required:
 - EventTopicURL: the endpoint for the Event Grid Topic and can be copied from the Overview blade.
 - EventResourcePath: the path to the resource and is of the form: /subscriptions/(your subscription id)/resourceGroups/(your resource group name)/providers/Microsoft.EventGrid/topics/(your EventGrid topic name).
 - EventKey: the key for the Event Grid Topic
-
-Optional (must be added in this order):
 - FalseImageURL: the URL to an image that can be used for a false positive event (i.e. no cause for concern).
 - TrueImageURL: the URL to an image that can be used for a true positive event (i.e. cause for concern).
+
+Optional (must be added in this order):
+
 - EventInterval: the number of milliseconds to pause between each event being published. Must be greater than 0. Default = 5000.
 - NumberDevices: the number of simulated devices to create. Each will have a random but fixed location. Default = 20.
 - MaxLat, MinLat, MaxLong, MinLong: Define the boundaries of a geographic rectangle within which the device locations will be set. All 4 are needed if used, and each must be a decimal with 6 significant places e.g. 53.024562. Default = a large rectangle covering most of England.

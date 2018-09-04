@@ -191,7 +191,7 @@ namespace alarms
         {
             // Return (pseudo) random red, amber or green
             string alarmStatus = "green";
-            Random random = new Random(Environment.TickCount);
+            Random random = new Random(Guid.NewGuid().GetHashCode());
             
             // Simplistic weighting to make the majority green
             // e.g. if _statusWeighting is 10 then 0 = red, 1 = amber, 2-9 = green
@@ -232,7 +232,7 @@ namespace alarms
         {
             // Return either the good (e.g. cat) or bad (e.g. gang) image
             string alarmImage = null;
-            Random random = new Random(Environment.TickCount);
+            Random random = new Random(Guid.NewGuid().GetHashCode());
             
             // Assumed 50/50 weighting?
             int value = random.Next(2);
