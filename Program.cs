@@ -57,8 +57,9 @@ namespace alarms
         static void Main(string[] args)
         {
             string usageOutput = "Usage: dotnet run <EventTopicURL> <EventResourcePath> <EventKey>"
+             + " <FalseImageURL> <TrueImageURL>"
              + "\nOptional args:"
-             + "<FalseImageURL> <TrueImageURL> <EventInterval (ms)> <NumberDevices> "
+             + "<EventInterval (ms)> <NumberDevices> "
              + "<MaxLat> <MinLat> <MaxLong> <MinLong> <StatusWeighting>"
              + "\nLatitude and Longitude must all be decimal with 6 significant points and all 4 must be provided."
              + "\nIf running from the Docker image then substitute docker for dotnet in the command above.";
