@@ -63,7 +63,7 @@ namespace alarms
             "\nAlarmKey - The Event Grid Topic key." + 
             "\nAlarmFalseImage - The URL to an image that can be used for a false positive event." +
             "\nAlarmTrueImage - The URL to an image that can be used for a positive event." +
-            "\nOptional args:" +
+            "\nOptional environment variables:" +
             "\nAlarmInterval - The ms between alarm events, default = 5000." +
             "\nAlarmNumDevices - The number of alarms, default = 20." +
             "\nAlarmMaxLat AlarmMinLat AlarmMaxLong AlarmMinLong - Describes the area within which random cordinates will be created, default = central England." +

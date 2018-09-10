@@ -73,11 +73,11 @@ You can also build a Docker image using the included Dockerfile such as:
 
 The [image is available on DockerHub](https://hub.docker.com/r/gdavi/alarms-iot-simulator/) to use immediately. The environment variables above need to be set and then the command line is:
 
-`docker run gdavi/alarms-iot-simulator`
+`docker run gdavi/alarms-iot-simulator -e AlarmTopic='[TOPIC URL]' -e AlarmResource='[RESOURCE ID]' -e AlarmKey='[TOPIC KEY]' -e AlarmFalseImage='[FALSE IMAGE URL]' -e AlarmTrueImage='[TRUE IMAGE URL]'`
 
 To run in Azure Container Instance via the Azure command shell:
 
-`az container create --resource-group [RESOURCE GROUP] --name [NAME] --image gdavi/alarms-iot-simulator --restart-policy OnFailure --environment-variables AlarmTopic=[TOPIC URL] AlarmResource=[RESOURCE ID] AlarmKey=[TOPIC KEY] FalseImage=[FALSE IMAGE URL] TrueImage=[TRUE IMAGE URL]`
+`az container create --resource-group [RESOURCE GROUP] --name [NAME] --image gdavi/alarms-iot-simulator --restart-policy OnFailure --environment-variables AlarmTopic=[TOPIC URL] AlarmResource=[RESOURCE ID] AlarmKey=[TOPIC KEY] AlarmFalseImage=[FALSE IMAGE URL] AlarmTrueImage=[TRUE IMAGE URL]`
 
 To stop and delete in Azure Container Instance via the Azure command shell:
 
