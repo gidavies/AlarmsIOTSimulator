@@ -4,7 +4,7 @@ A .NET Core console app to publish simple alarm data to an Azure Event Grid topi
 The alarm data consists of:
 
 - device id
-- status (green | amber | red)
+- status (green or blue)
 - longtitude
 - latitude
 - image (a URL to an image related to the alarm)
