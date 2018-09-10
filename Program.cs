@@ -66,17 +66,23 @@ namespace alarms
             
             if (args.Length < 5)
             {
-                System.Console.WriteLine("Please enter arguments.");
-                System.Console.WriteLine(usageOutput);
-                return;
+                _eventTopicEndpoint = Environment.GetEnvironmentVariable("AlarmTopic");
+                _eventTopicResource = Environment.GetEnvironmentVariable("AlarmResource");
+                _eventAegSasKey = Environment.GetEnvironmentVariable("AlarmKey");
+                _falseAlarmImageURL = Environment.GetEnvironmentVariable("FalseImage");
+                _trueAlarmImageURL = Environment.GetEnvironmentVariable("TrueImage");
+                
+                System.Console.WriteLine("Using environment variables.");
             }
+            else
+            {
+                _eventTopicEndpoint = args[0];
+                _eventTopicResource = args[1];
+                _eventAegSasKey = args[2];
+                _falseAlarmImageURL = args[3];
+                _trueAlarmImageURL = args[4];
+            }  
 
-            _eventTopicEndpoint = args[0];
-            _eventTopicResource = args[1];
-            _eventAegSasKey = args[2];
-            _falseAlarmImageURL = args[3];
-            _trueAlarmImageURL = args[4];
-            
             try
             {
                 // If the interval arg is supplied, override the default
@@ -117,7 +123,14 @@ namespace alarms
             SetLocationBoundaries(_maxLat, _minLat, _maxLong, _minLong);
             SetDevices();
 
-            Console.Write("Alarms will be sent every " + _eventInterval + "ms.");
+            Console.Write("Alarms will be sent to the following: " +
+            "\n Topic EndPoint: " + _eventTopicEndpoint + 
+            "\n Topic Key: (blanked)" + 
+            "\n Topic Resource: " + _eventTopicResource + 
+            "\n False Image: " + _falseAlarmImageURL +
+            "\n True Image: " + _trueAlarmImageURL 
+            );
+            Console.Write("\nAlarms will be sent every " + _eventInterval + "ms.");
 
             SimulateAlarms().Wait();
         }
