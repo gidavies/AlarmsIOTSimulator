@@ -56,82 +56,95 @@ namespace alarms
         // IOTSimulator 
         static void Main(string[] args)
         {
-            string usageOutput = "Usage: dotnet run <EventTopicURL> <EventResourcePath> <EventKey>"
-             + " <FalseImageURL> <TrueImageURL>"
-             + "\nOptional args:"
-             + "<EventInterval (ms)> <NumberDevices> "
-             + "<MaxLat> <MinLat> <MaxLong> <MinLong> <StatusWeighting>"
-             + "\nLatitude and Longitude must all be decimal with 6 significant points and all 4 must be provided."
-             + "\nIf running from the Docker image then substitute docker for dotnet in the command above.";
+            string usageOutput = "\nUsage:" +
+            "\nRequired environment variables:" + 
+            "\nAlarmTopic - The Event Grid Topic EndPoint." +
+            "\nAlarmResource - The path to the resource in the form: /subscriptions/[your subscription id]/resourceGroups/[your resource group name]/providers/Microsoft.EventGrid/topics/[your EventGrid topic name]." +
+            "\nAlarmKey - The Event Grid Topic key." + 
+            "\nAlarmFalseImage - The URL to an image that can be used for a false positive event." +
+            "\nAlarmTrueImage - The URL to an image that can be used for a positive event." +
+            "\nOptional args:" +
+            "\nAlarmInterval - The ms between alarm events, default = 5000." +
+            "\nAlarmNumDevices - The number of alarms, default = 20." +
+            "\nAlarmMaxLat AlarmMinLat AlarmMaxLong AlarmMinLong - Describes the area within which random cordinates will be created, default = central England." +
+            "\nLatitude and Longitude must all be decimal with 6 significant points and all 4 must be provided." +
+            "\nAlarmStatusWeight - Must be more than 2, the higher the proportionally more green status alerts. Default = 10";
             
-            if (args.Length < 5)
+            if (args.Length > 0)
             {
-                _eventTopicEndpoint = Environment.GetEnvironmentVariable("AlarmTopic");
-                _eventTopicResource = Environment.GetEnvironmentVariable("AlarmResource");
-                _eventAegSasKey = Environment.GetEnvironmentVariable("AlarmKey");
-                _falseAlarmImageURL = Environment.GetEnvironmentVariable("FalseImage");
-                _trueAlarmImageURL = Environment.GetEnvironmentVariable("TrueImage");
-                
-                System.Console.WriteLine("Using environment variables.");
-            }
-            else
-            {
-                _eventTopicEndpoint = args[0];
-                _eventTopicResource = args[1];
-                _eventAegSasKey = args[2];
-                _falseAlarmImageURL = args[3];
-                _trueAlarmImageURL = args[4];
-            }  
-
-            try
-            {
-                // If the interval arg is supplied, override the default
-                if ( args.Length > 5 && args[5] != null)
-                {
-                    int.TryParse(args[5], out _eventInterval);
-                }
-                
-                // If the devices arg is supplied, override the default
-                if (args.Length > 6 && args[6] != null)
-                {
-                    int.TryParse(args[6], out _numberDevices);
-                }
-
-                // If the boundary locations are supplied, override the defaults
-                if (args.Length > 10 && args[7] != null && args[8] != null && args[9] != null && args[10] != null)
-                {
-                    decimal.TryParse(args[7], out _maxLat);
-                    decimal.TryParse(args[8], out _minLat);
-                    decimal.TryParse(args[9], out _maxLong);
-                    decimal.TryParse(args[10], out _minLong);
-                }
-
-                // If the status weighting arg is supplied, override the default
-                if (args.Length > 11 && args[11] != null)
-                {
-                    int.TryParse(args[11], out _statusWeighting);
-                }
-            }
-            catch (Exception e) 
-            {
-                System.Console.WriteLine("Argument error: " + e.Message);
-                System.Console.WriteLine("Please enter arguments.");
                 System.Console.WriteLine(usageOutput);
                 return;
             }
             
-            SetLocationBoundaries(_maxLat, _minLat, _maxLong, _minLong);
-            SetDevices();
+            // Required environment variables
+            if (Environment.GetEnvironmentVariable("AlarmTopic") != null &&
+                Environment.GetEnvironmentVariable("AlarmResource") != null &&
+                Environment.GetEnvironmentVariable("AlarmKey") != null &&
+                Environment.GetEnvironmentVariable("AlarmFalseImage") != null &&
+                Environment.GetEnvironmentVariable("AlarmTrueImage") != null)
+            {
+                _eventTopicEndpoint = Environment.GetEnvironmentVariable("AlarmTopic");
+                _eventTopicResource = Environment.GetEnvironmentVariable("AlarmResource");
+                _eventAegSasKey = Environment.GetEnvironmentVariable("AlarmKey");
+                _falseAlarmImageURL = Environment.GetEnvironmentVariable("AlarmFalseImage");
+                _trueAlarmImageURL = Environment.GetEnvironmentVariable("AlarmTrueImage");
+            }
+            else
+            {
+                System.Console.WriteLine("Missing required environment variable(s).");
+                System.Console.WriteLine(usageOutput);
+                return;
+            } 
 
-            Console.Write("Alarms will be sent to the following: " +
-            "\n Topic EndPoint: " + _eventTopicEndpoint + 
-            "\n Topic Key: (blanked)" + 
-            "\n Topic Resource: " + _eventTopicResource + 
-            "\n False Image: " + _falseAlarmImageURL +
-            "\n True Image: " + _trueAlarmImageURL 
-            );
+            // Optional environment variables
+            try
+            {
+                // If the interval is supplied, override the default
+                if ( Environment.GetEnvironmentVariable("AlarmInterval") != null)
+                {
+                    int.TryParse(Environment.GetEnvironmentVariable("AlarmInterval"), out _eventInterval);
+                }
+                
+                // If the number of devices is supplied, override the default
+                if (Environment.GetEnvironmentVariable("AlarmNumDevices") != null)
+                {
+                    int.TryParse(Environment.GetEnvironmentVariable("AlarmNumDevices"), out _numberDevices);
+                }
+
+                // If ALL the boundary locations are supplied, override the defaults
+                if (Environment.GetEnvironmentVariable("AlarmMaxLat") != null && 
+                    Environment.GetEnvironmentVariable("AlarmMinLat") != null && 
+                    Environment.GetEnvironmentVariable("AlarmMaxLong") != null && 
+                    Environment.GetEnvironmentVariable("AlarmMinLong") != null)
+                {
+                    decimal.TryParse(Environment.GetEnvironmentVariable("AlarmMaxLat"), out _maxLat);
+                    decimal.TryParse(Environment.GetEnvironmentVariable("AlarmMinLat"), out _minLat);
+                    decimal.TryParse(Environment.GetEnvironmentVariable("AlarmMaxLong"), out _maxLong);
+                    decimal.TryParse(Environment.GetEnvironmentVariable("AlarmMinLong"), out _minLong);
+                }
+
+                // If the status weighting is supplied, override the default
+                if (Environment.GetEnvironmentVariable("AlarmStatusWeight") != null)
+                {
+                    int.TryParse(Environment.GetEnvironmentVariable("AlarmStatusWeight"), out _statusWeighting);
+                }
+            }
+            catch (Exception e) 
+            {
+                System.Console.WriteLine("Environment variable error: " + e.Message);
+                System.Console.WriteLine(usageOutput);
+                return;
+            }
+            
+            Console.Write("Alarm settings: " + "\n Topic EndPoint: " + _eventTopicEndpoint + 
+            "\n Topic Key (last chars): " + _eventAegSasKey.Substring(_eventAegSasKey.Length - 4, 4) + "\n Topic Resource: " + _eventTopicResource + 
+            "\n False Image: " + _falseAlarmImageURL + "\n True Image: " + _trueAlarmImageURL);
+            
             Console.Write("\nAlarms will be sent every " + _eventInterval + "ms.");
 
+            SetLocationBoundaries(_maxLat, _minLat, _maxLong, _minLong);
+            SetDevices();
+            
             SimulateAlarms().Wait();
         }
 
@@ -148,6 +161,7 @@ namespace alarms
                 var location = GetAlarmLocation();
                 _devices[i].longitude = location.longitude;
                 _devices[i].latitude = location.latitude;
+                _devices[i].name = "Alarm " + i;
             }
         }
 
@@ -166,6 +180,7 @@ namespace alarms
                     {
                         _devices[i].status = GetAlarmStatus();
                         _devices[i].image = GetAlarmImage();
+                        _devices[i].text = _devices[i].status + " alert image: " + _devices[i].image;
                         
                         // Create a new event
                         AlarmEvent alarmEvent = new AlarmEvent {
@@ -203,12 +218,13 @@ namespace alarms
 
         private static string GetAlarmStatus()
         {
-            // Return (pseudo) random red, amber or green
-            string alarmStatus = "green";
+            // Return (pseudo) random red or blue
+            // blue as the default Azure Maps pins includes blue but not green
+            string alarmStatus = "blue";
             Random random = new Random(Guid.NewGuid().GetHashCode());
             
             // Simplistic weighting to make the majority green
-            // e.g. if _statusWeighting is 10 then 0 = red, 1 = amber, 2-9 = green
+            // e.g. if _statusWeighting is 10 then 0 = red, 1-9 = blue
             int value = random.Next(_statusWeighting);
 
             switch (value)
@@ -216,11 +232,8 @@ namespace alarms
                 case 0:
                     alarmStatus = "red";
                     break;
-                case 1:
-                    alarmStatus = "amber";
-                    break;
                 default:
-                    alarmStatus = "green";
+                    alarmStatus = "blue";
                     break;
             }
 
