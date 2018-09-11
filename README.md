@@ -4,7 +4,7 @@ A .NET Core console app to publish simple alarm data to an Azure Event Grid topi
 The alarm data consists of:
 
 - device id
-- status (green or blue)
+- status (red or blue)
 - longtitude
 - latitude
 - image (a URL to an image related to the alarm)
@@ -71,14 +71,14 @@ You can also build a Docker image using the included Dockerfile such as:
 
 `docker build --rm -f Dockerfile -t alarmsiotsimulator:latest .`
 
-The [image is available on DockerHub](https://hub.docker.com/r/gdavi/alarms-iot-simulator/) to use immediately. The environment variables above need to be set and then the command line is:
+The [image is available on DockerHub](https://hub.docker.com/r/gdavi/alarms-iot-simulator/) to use immediately. To pass the environment variables into the docker container you can use the following:
 
 `docker run gdavi/alarms-iot-simulator -e AlarmTopic='[TOPIC URL]' -e AlarmResource='[RESOURCE ID]' -e AlarmKey='[TOPIC KEY]' -e AlarmFalseImage='[FALSE IMAGE URL]' -e AlarmTrueImage='[TRUE IMAGE URL]'`
 
-To run in Azure Container Instance via the Azure command shell:
+To run in Azure Container Instance via the Azure CLI or command shell:
 
 `az container create --resource-group [RESOURCE GROUP] --name [NAME] --image gdavi/alarms-iot-simulator --restart-policy OnFailure --environment-variables AlarmTopic=[TOPIC URL] AlarmResource=[RESOURCE ID] AlarmKey=[TOPIC KEY] AlarmFalseImage=[FALSE IMAGE URL] AlarmTrueImage=[TRUE IMAGE URL]`
 
-To stop and delete in Azure Container Instance via the Azure command shell:
+To stop and delete in Azure Container Instance via the Azure CLI or command shell:
 
 `az container delete --name [NAME] -g [RESOURCE GROUP]`
