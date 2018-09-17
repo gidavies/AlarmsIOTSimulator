@@ -34,7 +34,7 @@ Resultant JSON Schema:
         "Name": {
             "type": "string"
         },
-        "Tßext": {
+        "Text": {
             "type": "string"
         }
     },
