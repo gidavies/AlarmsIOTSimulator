@@ -61,7 +61,7 @@ The following environment variables are optional:
 - AlarmInterval - The ms between alarm events, default = 5000.
 - AlarmNumDevices - The number of alarms, default = 20.
 - AlarmMaxLat AlarmMinLat AlarmMaxLong AlarmMinLong - Describes the area within which random cordinates will be created, default = central England. Latitude and Longitude must all be decimal with 6 significant points and all 4 must be provided.
-- AlarmStatusWeight - Must be more than 2, the higher the proportionally more green status alerts. Default = 10.
+- AlarmStatusWeight - Must be more than 2, the lower the weighting the proportionally more red status alerts. Default = 10.
 
 Then from the command line run:
 
