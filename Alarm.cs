@@ -2,12 +2,12 @@ namespace alarms
 {
     public class Alarm
     {
-        public int deviceId {get; set; }
-        public string status { get; set; }
-        public decimal longitude { get; set; }
-        public decimal latitude { get; set; }
-        public string image { get; set; }
-        public string name {get; set;}
-        public string text {get; set;}
+        public int DeviceId {get; set; }
+        public string Status { get; set; }
+        public decimal Longitude { get; set; }
+        public decimal Latitude { get; set; }
+        public string Image { get; set; }
+        public string Name {get; set;}
+        public string Text {get; set;}
     }
 }

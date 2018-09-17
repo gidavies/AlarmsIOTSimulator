@@ -68,7 +68,7 @@ namespace alarms
             "\nAlarmNumDevices - The number of alarms, default = 20." +
             "\nAlarmMaxLat AlarmMinLat AlarmMaxLong AlarmMinLong - Describes the area within which random cordinates will be created, default = central England." +
             "\nLatitude and Longitude must all be decimal with 6 significant points and all 4 must be provided." +
-            "\nAlarmStatusWeight - Must be more than 2, the higher the proportionally more green status alerts. Default = 10";
+            "\nAlarmStatusWeight - Must be more than 2, the lower the weighting the proportionally more red status alerts. Default = 10";
             
             if (args.Length > 0)
             {
@@ -157,11 +157,11 @@ namespace alarms
             for (int i = 0; i < _devices.Length; i++)
             {
                 _devices[i] = new Alarm();
-                _devices[i].deviceId = i;
+                _devices[i].DeviceId = i;
                 var location = GetAlarmLocation();
-                _devices[i].longitude = location.longitude;
-                _devices[i].latitude = location.latitude;
-                _devices[i].name = "Alarm " + i;
+                _devices[i].Longitude = location.longitude;
+                _devices[i].Latitude = location.latitude;
+                _devices[i].Name = "Alarm " + i;
             }
         }
 
@@ -178,9 +178,9 @@ namespace alarms
                     // For each device, send a new alarm, keeping the location static
                     for (int i = 0; i < _devices.Length; i++)
                     {
-                        _devices[i].status = GetAlarmStatus();
-                        _devices[i].image = GetAlarmImage();
-                        _devices[i].text = _devices[i].status + " alert image: " + _devices[i].image;
+                        _devices[i].Status = GetAlarmStatus();
+                        _devices[i].Image = GetAlarmImage();
+                        _devices[i].Text = _devices[i].Status + " alert image: " + _devices[i].Image;
                         
                         // Create a new event
                         AlarmEvent alarmEvent = new AlarmEvent {
@@ -199,10 +199,10 @@ namespace alarms
 
                         if (response.IsSuccessStatusCode)
                         {
-                            Console.WriteLine("\n Device " + _devices[i].deviceId
-                            + ". Status: " + _devices[i].status + ". Longitude: " 
-                            + _devices[i].longitude + ". Latitude: " + _devices[i].latitude
-                            + ". Image: " + _devices[i].image);
+                            Console.WriteLine("\n Device " + _devices[i].DeviceId
+                            + ". Status: " + _devices[i].Status + ". Longitude: " 
+                            + _devices[i].Longitude + ". Latitude: " + _devices[i].Latitude
+                            + ". Image: " + _devices[i].Image);
                         }
                     }
                 }

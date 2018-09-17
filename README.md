@@ -16,25 +16,25 @@ Resultant JSON Schema:
 ```JSON
 {
     "properties": {
-        "deviceId": {
+        "DeviceId": {
             "type": "number"
         },
-        "image": {
+        "Image": {
             "type": "string"
         },
-        "latitude": {
+        "Latitude": {
             "type": "number"
         },
-        "longitude": {
+        "Longitude": {
             "type": "number"
         },
-        "status": {
+        "Status": {
             "type": "string"
         },
-        "name": {
+        "Name": {
             "type": "string"
         },
-        "text": {
+        "Tßext": {
             "type": "string"
         }
     },
