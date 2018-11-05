@@ -58,27 +58,26 @@ namespace alarms
         {
             string usageOutput = "\nUsage:" +
             "\nRequired environment variables:" + 
+            "\n-------------------------------\n" + 
             "\nAlarmTopic - The Event Grid Topic EndPoint." +
             "\nAlarmResource - The path to the resource in the form: /subscriptions/[your subscription id]/resourceGroups/[your resource group name]/providers/Microsoft.EventGrid/topics/[your EventGrid topic name]." +
             "\nAlarmKey - The Event Grid Topic key." + 
             "\nAlarmFalseImage - The URL to an image that can be used for a false positive event." +
             "\nAlarmTrueImage - The URL to an image that can be used for a positive event." +
             "\nOptional environment variables:" +
+            "\n-------------------------------\n" + 
             "\nAlarmInterval - The ms between alarm events, default = 5000." +
             "\nAlarmNumDevices - The number of alarms, default = 20." +
             "\nAlarmMaxLat AlarmMinLat AlarmMaxLong AlarmMinLong - Describes the area within which random cordinates will be created, default = central England." +
             "\nLatitude and Longitude must all be decimal with 6 significant points and all 4 must be provided." +
             "\nAlarmStatusWeight - Must be more than 2, the lower the weighting the proportionally more red status alerts. Default = 10";
             
-            //if (args.Length > 0)
-            //{
-                //System.Console.WriteLine(usageOutput);
-                //System.Console.WriteLine("No args looking for environment ")
-                //return;
-            //}
+            if (args.Length > 0)
+            {
+                System.Console.WriteLine(usageOutput);
+                return;
+            }
             
-            System.Console.WriteLine("\nChecking env variables...");
-
             // Required environment variables
             if (Environment.GetEnvironmentVariable("AlarmTopic") != null &&
                 Environment.GetEnvironmentVariable("AlarmResource") != null &&
@@ -211,7 +210,7 @@ namespace alarms
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Error sending alarm:" + e.Message);
+                    Console.WriteLine("\nError sending alarm:" + e.Message);
                 }
                 
                 // Pause specified interval before the next batch of alarms
