@@ -73,7 +73,7 @@ You can also build a Docker image using the included Dockerfile such as:
 
 The [image is available on DockerHub](https://hub.docker.com/r/gdavi/alarms-iot-simulator/) to use immediately. To pass the environment variables into the docker container you can use the following:
 
-`docker run gdavi/alarms-iot-simulator -e AlarmTopic='[TOPIC URL]' -e AlarmResource='[RESOURCE ID]' -e AlarmKey='[TOPIC KEY]' -e AlarmFalseImage='[FALSE IMAGE URL]' -e AlarmTrueImage='[TRUE IMAGE URL]'`
+`docker run -e AlarmTopic="[TOPIC URL]" -e AlarmResource="[RESOURCE ID]" -e AlarmKey="[TOPIC KEY]" -e AlarmFalseImage="[FALSE IMAGE URL]" -e AlarmTrueImage="[TRUE IMAGE URL]" gdavi/alarms-iot-simulator`
 
 To run in Azure Container Instance via the Azure CLI or command shell:
 
