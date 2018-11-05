@@ -70,11 +70,12 @@ namespace alarms
             "\nLatitude and Longitude must all be decimal with 6 significant points and all 4 must be provided." +
             "\nAlarmStatusWeight - Must be more than 2, the lower the weighting the proportionally more red status alerts. Default = 10";
             
-            if (args.Length > 0)
-            {
-                System.Console.WriteLine(usageOutput);
-                return;
-            }
+            //if (args.Length > 0)
+            //{
+                //System.Console.WriteLine(usageOutput);
+                //System.Console.WriteLine("No args looking for environment ")
+                //return;
+            //}
             
             // Required environment variables
             if (Environment.GetEnvironmentVariable("AlarmTopic") != null &&
