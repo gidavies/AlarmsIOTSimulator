@@ -77,6 +77,8 @@ namespace alarms
                 //return;
             //}
             
+            System.Console.WriteLine("\nChecking env variables...");
+
             // Required environment variables
             if (Environment.GetEnvironmentVariable("AlarmTopic") != null &&
                 Environment.GetEnvironmentVariable("AlarmResource") != null &&
