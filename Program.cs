@@ -56,21 +56,21 @@ namespace alarms
         // IOTSimulator 
         static void Main(string[] args)
         {
-            string usageOutput = "\nUsage:" +
-            "\nRequired environment variables:" + 
-            "\n-------------------------------\n" + 
-            "\nAlarmTopic - The Event Grid Topic EndPoint." +
-            "\nAlarmResource - The path to the resource in the form: /subscriptions/[your subscription id]/resourceGroups/[your resource group name]/providers/Microsoft.EventGrid/topics/[your EventGrid topic name]." +
-            "\nAlarmKey - The Event Grid Topic key." + 
-            "\nAlarmFalseImage - The URL to an image that can be used for a false positive event." +
-            "\nAlarmTrueImage - The URL to an image that can be used for a positive event." +
-            "\nOptional environment variables:" +
-            "\n-------------------------------\n" + 
-            "\nAlarmInterval - The ms between alarm events, default = 5000." +
-            "\nAlarmNumDevices - The number of alarms, default = 20." +
+            string usageOutput = "\nUsage\n" +
+            "\nRequired environment variables" + 
+            "\n------------------------------" + 
+            "\n\nAlarmTopic: The Event Grid Topic EndPoint." +
+            "\nAlarmResource: The path to the resource in the form: /subscriptions/[your subscription id]/resourceGroups/[your resource group name]/providers/Microsoft.EventGrid/topics/[your EventGrid topic name]." +
+            "\nAlarmKey: The Event Grid Topic key." + 
+            "\nAlarmFalseImage: The URL to an image that can be used for a false positive event." +
+            "\nAlarmTrueImage: The URL to an image that can be used for a positive event." +
+            "\n\nOptional environment variables" +
+            "\n------------------------------" + 
+            "\n\nAlarmInterval: The ms between alarm events, default = 5000." +
+            "\nAlarmNumDevices: The number of alarms, default = 20." +
             "\nAlarmMaxLat AlarmMinLat AlarmMaxLong AlarmMinLong - Describes the area within which random cordinates will be created, default = central England." +
             "\nLatitude and Longitude must all be decimal with 6 significant points and all 4 must be provided." +
-            "\nAlarmStatusWeight - Must be more than 2, the lower the weighting the proportionally more red status alerts. Default = 10";
+            "\nAlarmStatusWeight: Must be more than 2, the lower the weighting the proportionally more red status alerts. Default = 10";
             
             if (args.Length > 0)
             {
