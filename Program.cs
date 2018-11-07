@@ -30,6 +30,11 @@ namespace alarms
         // Status weighting to skew more green vs red and amber
         private static int _statusWeighting = 10;
 
+        // Maximum time for the events to be generated (in minutes)
+        // 0 equates to no maximum (run forever)
+        private static int _maxRunTime = 10;
+        private static DateTime _endTime;
+
         // Hold boundary conditions for longitude and latitude
         // Don't need to calculate more than once
         private static int _integralMaxLat;
@@ -70,11 +75,12 @@ namespace alarms
             "\nAlarmNumDevices: The number of alarms, default = 20." +
             "\nAlarmMaxLat AlarmMinLat AlarmMaxLong AlarmMinLong - Describes the area within which random cordinates will be created, default = central England." +
             "\nLatitude and Longitude must all be decimal with 6 significant points and all 4 must be provided." +
-            "\nAlarmStatusWeight: Must be more than 2, the lower the weighting the proportionally more red status alerts. Default = 10";
+            "\nAlarmStatusWeight: Must be more than 2, the lower the weighting the proportionally more red status alerts. Default = 10" +
+            "\nAlarmMaxRunTime: The maximum number of minutes for the events to be generated, zero for no max. Default = 10";
             
             if (args.Length > 0)
             {
-                System.Console.WriteLine(usageOutput);
+                Console.WriteLine(usageOutput);
                 return;
             }
             
@@ -93,8 +99,8 @@ namespace alarms
             }
             else
             {
-                System.Console.WriteLine("Missing required environment variable(s).");
-                System.Console.WriteLine(usageOutput);
+                Console.WriteLine("Missing required environment variable(s).");
+                Console.WriteLine(usageOutput);
                 return;
             } 
 
@@ -130,11 +136,17 @@ namespace alarms
                 {
                     int.TryParse(Environment.GetEnvironmentVariable("AlarmStatusWeight"), out _statusWeighting);
                 }
+
+                // If the maximimum time is supplied, override the default
+                if (Environment.GetEnvironmentVariable("AlarmMaxRunTime") != null)
+                {
+                    int.TryParse(Environment.GetEnvironmentVariable("AlarmMaxRunTime"), out _maxRunTime);
+                }
             }
             catch (Exception e) 
             {
-                System.Console.WriteLine("Environment variable error: " + e.Message);
-                System.Console.WriteLine(usageOutput);
+                Console.WriteLine("Environment variable error: " + e.Message);
+                Console.WriteLine(usageOutput);
                 return;
             }
             
@@ -142,10 +154,12 @@ namespace alarms
             "\n Topic Key (last chars): " + _eventAegSasKey.Substring(_eventAegSasKey.Length - 4, 4) + "\n Topic Resource: " + _eventTopicResource + 
             "\n False Image: " + _falseAlarmImageURL + "\n True Image: " + _trueAlarmImageURL);
             
-            Console.Write("\nAlarms will be sent every " + _eventInterval + "ms.");
+            Console.Write("\nAlarms will be sent every " + _eventInterval + " ms.");
+            Console.Write("\nThe simulator will stop after " + _maxRunTime + " mins.\n");
 
             SetLocationBoundaries(_maxLat, _minLat, _maxLong, _minLong);
             SetDevices();
+            _endTime = DateTime.Now.AddMinutes(_maxRunTime);
             
             SimulateAlarms().Wait();
         }
@@ -213,6 +227,12 @@ namespace alarms
                     Console.WriteLine("\nError sending alarm:" + e.Message);
                 }
                 
+                // Exit if max time reached
+                if (IsMaxTime())
+                {
+                    Console.WriteLine("Maximum time reached (" + _maxRunTime + " mins), simulator stopping.");
+                    Environment.Exit(1);
+                }
                 // Pause specified interval before the next batch of alarms
                 Thread.Sleep(_eventInterval);
             }
@@ -344,6 +364,24 @@ namespace alarms
                 max = tmpMin;
                 min = tmpMax;
             } 
+        }
+
+        private static bool IsMaxTime()
+        {
+            bool stop = false;
+
+            // If it's zero, never time out
+            if (_maxRunTime == 0)
+            {
+                stop = false;
+            }
+            else if(DateTime.Compare(DateTime.Now, _endTime) > 0)
+            {
+                // If compare is not zero then now is later than the end time
+                stop = true;
+            }
+            
+            return stop;
         }
     }
 }
