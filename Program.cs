@@ -16,14 +16,14 @@ namespace alarms
         private static string _eventAegSasKey = null;
 
         // Speed of event publishing, ms between each event
-        private static int _eventInterval = 5000;
+        private static int _eventInterval = 10000;
 
         // Images    
         private static string _falseAlarmImageURL = null;
         private static string _trueAlarmImageURL = null;
 
         // Locations for simulated IOT devices
-        private static int _numberDevices = 20;
+        private static int _numberDevices = 10;
 
         private static Alarm[] _devices;
 
@@ -71,8 +71,8 @@ namespace alarms
             "\nAlarmTrueImage: The URL to an image that can be used for a positive event." +
             "\n\nOptional environment variables" +
             "\n------------------------------" + 
-            "\n\nAlarmInterval: The ms between alarm events, default = 5000." +
-            "\nAlarmNumDevices: The number of alarms, default = 20." +
+            "\n\nAlarmInterval: The ms between alarm events, default = 10000." +
+            "\nAlarmNumDevices: The number of alarms, default = 10." +
             "\nAlarmMaxLat AlarmMinLat AlarmMaxLong AlarmMinLong - Describes the area within which random cordinates will be created, default = central England." +
             "\nLatitude and Longitude must all be decimal with 6 significant points and all 4 must be provided." +
             "\nAlarmStatusWeight: Must be more than 2, the lower the weighting the proportionally more red status alerts. Default = 10" +
