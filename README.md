@@ -4,7 +4,6 @@ A .NET Core console app to publish simple alarm data to an Azure Event Grid topi
 The alarm data consists of:
 
 - device id
-- status (red or blue)
 - longtitude
 - latitude
 - image (a URL to an image related to the alarm)
@@ -27,9 +26,6 @@ Resultant JSON Schema:
         },
         "Longitude": {
             "type": "number"
-        },
-        "Status": {
-            "type": "string"
         },
         "Name": {
             "type": "string"
