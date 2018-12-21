@@ -19,16 +19,14 @@ namespace alarms
         private static int _eventInterval = 10000;
 
         // Images    
-        private static string _falseAlarmImageURL = null;
-        private static string _trueAlarmImageURL = null;
-
+        private static string _alarmImageRoot = null;
+        private static int _alarmImageNumber = 2;
         // Locations for simulated IOT devices
         private static int _numberDevices = 10;
 
         private static Alarm[] _devices;
 
-        // Status weighting to skew more green vs red and amber
-        private static int _statusWeighting = 10;
+
 
         // Maximum time for the events to be generated (in minutes)
         // 0 equates to no maximum (run forever)
@@ -67,15 +65,14 @@ namespace alarms
             "\n\nAlarmTopic: The Event Grid Topic EndPoint." +
             "\nAlarmResource: The path to the resource in the form: /subscriptions/[your subscription id]/resourceGroups/[your resource group name]/providers/Microsoft.EventGrid/topics/[your EventGrid topic name]." +
             "\nAlarmKey: The Event Grid Topic key." + 
-            "\nAlarmFalseImage: The URL to an image that can be used for a false positive event." +
-            "\nAlarmTrueImage: The URL to an image that can be used for a positive event." +
+            "\nAlarmImageRoot: The URL to the source of the alarm images. Each image in the folder must be named photoXX.png where XX = 01,02 etc.." +
+            "\nAlarmImageNumber: The number of images in the image URL. Must be 2 or more." + 
             "\n\nOptional environment variables" +
             "\n------------------------------" + 
             "\n\nAlarmInterval: The ms between alarm events, default = 10000." +
             "\nAlarmNumDevices: The number of alarms, default = 10." +
             "\nAlarmMaxLat AlarmMinLat AlarmMaxLong AlarmMinLong - Describes the area within which random cordinates will be created, default = central England." +
             "\nLatitude and Longitude must all be decimal with 6 significant points and all 4 must be provided." +
-            "\nAlarmStatusWeight: Must be more than 2, the lower the weighting the proportionally more red status alerts. Default = 10" +
             "\nAlarmMaxRunTime: The maximum number of minutes for the events to be generated, zero for no max. Default = 10";
             
             if (args.Length > 0)
@@ -88,14 +85,14 @@ namespace alarms
             if (Environment.GetEnvironmentVariable("AlarmTopic") != null &&
                 Environment.GetEnvironmentVariable("AlarmResource") != null &&
                 Environment.GetEnvironmentVariable("AlarmKey") != null &&
-                Environment.GetEnvironmentVariable("AlarmFalseImage") != null &&
-                Environment.GetEnvironmentVariable("AlarmTrueImage") != null)
+                Environment.GetEnvironmentVariable("AlarmImageRoot") != null &&
+                Environment.GetEnvironmentVariable("AlarmImageNumber") != null)
             {
                 _eventTopicEndpoint = Environment.GetEnvironmentVariable("AlarmTopic");
                 _eventTopicResource = Environment.GetEnvironmentVariable("AlarmResource");
                 _eventAegSasKey = Environment.GetEnvironmentVariable("AlarmKey");
-                _falseAlarmImageURL = Environment.GetEnvironmentVariable("AlarmFalseImage");
-                _trueAlarmImageURL = Environment.GetEnvironmentVariable("AlarmTrueImage");
+                _alarmImageRoot = Environment.GetEnvironmentVariable("AlarmImageRoot");
+                int.TryParse(Environment.GetEnvironmentVariable("AlarmImageNumber"), out _alarmImageNumber);
             }
             else
             {
@@ -131,12 +128,6 @@ namespace alarms
                     decimal.TryParse(Environment.GetEnvironmentVariable("AlarmMinLong"), out _minLong);
                 }
 
-                // If the status weighting is supplied, override the default
-                if (Environment.GetEnvironmentVariable("AlarmStatusWeight") != null)
-                {
-                    int.TryParse(Environment.GetEnvironmentVariable("AlarmStatusWeight"), out _statusWeighting);
-                }
-
                 // If the maximimum time is supplied, override the default
                 if (Environment.GetEnvironmentVariable("AlarmMaxRunTime") != null)
                 {
@@ -152,7 +143,7 @@ namespace alarms
             
             Console.Write("Alarm settings: " + "\n Topic EndPoint: " + _eventTopicEndpoint + 
             "\n Topic Key (last chars): " + _eventAegSasKey.Substring(_eventAegSasKey.Length - 4, 4) + "\n Topic Resource: " + _eventTopicResource + 
-            "\n False Image: " + _falseAlarmImageURL + "\n True Image: " + _trueAlarmImageURL);
+            "\n Image URL: " + _alarmImageRoot);
             
             Console.Write("\nAlarms will be sent every " + _eventInterval + " ms.");
             Console.Write("\nThe simulator will stop after " + _maxRunTime + " mins.\n");
@@ -194,9 +185,8 @@ namespace alarms
                     // For each device, send a new alarm, keeping the location static
                     for (int i = 0; i < _devices.Length; i++)
                     {
-                        _devices[i].Status = GetAlarmStatus();
                         _devices[i].Image = GetAlarmImage();
-                        _devices[i].Text = _devices[i].Status + " alert image: " + _devices[i].Image;
+                        _devices[i].Text = "Alarm event raised";
                         
                         // Create a new event
                         AlarmEvent alarmEvent = new AlarmEvent {
@@ -216,15 +206,19 @@ namespace alarms
                         if (response.IsSuccessStatusCode)
                         {
                             Console.WriteLine("\n Device " + _devices[i].DeviceId
-                            + ". Status: " + _devices[i].Status + ". Longitude: " 
-                            + _devices[i].Longitude + ". Latitude: " + _devices[i].Latitude
+                            + ". Longitude: " + _devices[i].Longitude 
+                            + ". Latitude: " + _devices[i].Latitude
                             + ". Image: " + _devices[i].Image);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Post unsuccessful: " + response.StatusCode + " " + response.ReasonPhrase);
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("\nError sending alarm:" + e.Message);
+                    Console.WriteLine("\nError sending alarm:" + e.Message + e.ToString());
                 }
                 
                 // Exit if max time reached
@@ -236,30 +230,6 @@ namespace alarms
                 // Pause specified interval before the next batch of alarms
                 Thread.Sleep(_eventInterval);
             }
-        }
-
-        private static string GetAlarmStatus()
-        {
-            // Return (pseudo) random red or blue
-            // blue as the default Azure Maps pins includes blue but not green
-            string alarmStatus = "blue";
-            Random random = new Random(Guid.NewGuid().GetHashCode());
-            
-            // Simplistic weighting to make the majority green
-            // e.g. if _statusWeighting is 10 then 0 = red, 1-9 = blue
-            int value = random.Next(_statusWeighting);
-
-            switch (value)
-            {
-                case 0:
-                    alarmStatus = "red";
-                    break;
-                default:
-                    alarmStatus = "blue";
-                    break;
-            }
-
-            return alarmStatus;
         }
 
         private static (decimal longitude, decimal latitude) GetAlarmLocation()
@@ -279,20 +249,19 @@ namespace alarms
 
         private static string GetAlarmImage()
         {
-            // Return either the good (e.g. cat) or bad (e.g. gang) image
             string alarmImage = null;
             Random random = new Random(Guid.NewGuid().GetHashCode());
             
-            // Assumed 50/50 weighting?
-            int value = random.Next(2);
-
-            if (value == 0)
+            // Get a random number between 1 and the total number of images
+            int value = random.Next(1, _alarmImageNumber);
+            
+            if (value < 10)
             {
-                alarmImage = _trueAlarmImageURL;
+                alarmImage = _alarmImageRoot + "photo0" + value + ".png";
             }
             else
             {
-                alarmImage = _falseAlarmImageURL;
+                alarmImage = _alarmImageRoot + "photo" + value + ".png";
             }
             
             return alarmImage;
@@ -377,7 +346,6 @@ namespace alarms
             }
             else if(DateTime.Compare(DateTime.Now, _endTime) > 0)
             {
-                // If compare is not zero then now is later than the end time
                 stop = true;
             }
             
