@@ -49,8 +49,8 @@ The following environment variables are required to be set before running from t
 - AlarmTopic - The Event Grid Topic EndPoint.
 - AlarmResource - The path to the resource in the form: /subscriptions/[your subscription id]/resourceGroups/[your resource group name]/providers/Microsoft.EventGrid/topics/[your EventGrid topic name].
 - AlarmKey - The Event Grid Topic key.
-- AlarmFalseImage - The URL to an image that can be used for a false positive event.
-- AlarmTrueImage - The URL to an image that can be used for a positive event.
+- AlarmImageRoot - The URL to the source of the alarm images. Each image in the folder must be named photoXX.png where XX = 01,02 etc..
+- AlarmImageNumber - The number of images in the image URL. Must be 2 or more.
 
 The following environment variables are optional:
 
@@ -70,11 +70,11 @@ You can also build a Docker image using the included Dockerfile such as:
 
 The [image is available on DockerHub](https://hub.docker.com/r/gdavi/alarms-iot-simulator/) to use immediately. To pass the environment variables into the docker container you can use the following:
 
-`docker run -e AlarmTopic="[TOPIC URL]" -e AlarmResource="[RESOURCE ID]" -e AlarmKey="[TOPIC KEY]" -e AlarmFalseImage="[FALSE IMAGE URL]" -e AlarmTrueImage="[TRUE IMAGE URL]" gdavi/alarms-iot-simulator`
+`docker run -e AlarmTopic="[TOPIC URL]" -e AlarmResource="[RESOURCE ID]" -e AlarmKey="[TOPIC KEY]" -e AlarmImageRoot="[IMAGES ROOT URL]" -e AlarmImageNumber="[NUMBER OF IMAGES]" gdavi/alarms-iot-simulator`
 
 To run in Azure Container Instance via the Azure CLI or command shell:
 
-`az container create --resource-group [RESOURCE GROUP] --name [NAME] --image gdavi/alarms-iot-simulator --restart-policy Never --environment-variables AlarmTopic=[TOPIC URL] AlarmResource=[RESOURCE ID] AlarmKey=[TOPIC KEY] AlarmFalseImage=[FALSE IMAGE URL] AlarmTrueImage=[TRUE IMAGE URL]`
+`az container create --resource-group [RESOURCE GROUP] --name [NAME] --image gdavi/alarms-iot-simulator --restart-policy Never --environment-variables AlarmTopic=[TOPIC URL] AlarmResource=[RESOURCE ID] AlarmKey=[TOPIC KEY] AlarmImageRoot=[IMAGES ROOT URL] AlarmImageNumber=[NUMBER OF IMAGES]`
 
 To stop and delete in Azure Container Instance via the Azure CLI or command shell:
 
