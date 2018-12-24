@@ -4,7 +4,6 @@ A .NET Core console app to publish simple alarm data to an Azure Event Grid topi
 The alarm data consists of:
 
 - device id
-- status (red or blue)
 - longtitude
 - latitude
 - image (a URL to an image related to the alarm)
@@ -28,9 +27,6 @@ Resultant JSON Schema:
         "Longitude": {
             "type": "number"
         },
-        "Status": {
-            "type": "string"
-        },
         "Name": {
             "type": "string"
         },
@@ -53,15 +49,15 @@ The following environment variables are required to be set before running from t
 - AlarmTopic - The Event Grid Topic EndPoint.
 - AlarmResource - The path to the resource in the form: /subscriptions/[your subscription id]/resourceGroups/[your resource group name]/providers/Microsoft.EventGrid/topics/[your EventGrid topic name].
 - AlarmKey - The Event Grid Topic key.
-- AlarmFalseImage - The URL to an image that can be used for a false positive event.
-- AlarmTrueImage - The URL to an image that can be used for a positive event.
+- AlarmImageRoot - The URL to the source of the alarm images. Each image in the folder must be named photoXX.png where XX = 01,02 etc..
 
 The following environment variables are optional:
 
+- AlarmImageNumber - The number of images in the image URL. Minimum of 2, default = 20.
 - AlarmInterval - The ms between alarm events, default = 10000.
 - AlarmNumDevices - The number of alarms, default = 10.
 - AlarmMaxLat AlarmMinLat AlarmMaxLong AlarmMinLong - Describes the area within which random cordinates will be created, default = central England. Latitude and Longitude must all be decimal with 6 significant points and all 4 must be provided.
-- AlarmStatusWeight - Must be more than 2, the lower the weighting the proportionally more red status alerts. Default = 10.
+- AlarmStatusWeight - Must be more than 2, the lower the weighting the proportionally more true alarm images. Default = 10.
 - AlarmMaxRunTime - The maximum number of minutes for the events to be generated, zero for no max. The simulator will stop after this time. Default = 10.
 
 Then from the command line run:
@@ -74,11 +70,11 @@ You can also build a Docker image using the included Dockerfile such as:
 
 The [image is available on DockerHub](https://hub.docker.com/r/gdavi/alarms-iot-simulator/) to use immediately. To pass the environment variables into the docker container you can use the following:
 
-`docker run -e AlarmTopic="[TOPIC URL]" -e AlarmResource="[RESOURCE ID]" -e AlarmKey="[TOPIC KEY]" -e AlarmFalseImage="[FALSE IMAGE URL]" -e AlarmTrueImage="[TRUE IMAGE URL]" gdavi/alarms-iot-simulator`
+`docker run -e AlarmTopic="[TOPIC URL]" -e AlarmResource="[RESOURCE ID]" -e AlarmKey="[TOPIC KEY]" -e AlarmImageRoot="[IMAGES ROOT URL]" gdavi/alarms-iot-simulator`
 
 To run in Azure Container Instance via the Azure CLI or command shell:
 
-`az container create --resource-group [RESOURCE GROUP] --name [NAME] --image gdavi/alarms-iot-simulator --restart-policy Never --environment-variables AlarmTopic=[TOPIC URL] AlarmResource=[RESOURCE ID] AlarmKey=[TOPIC KEY] AlarmFalseImage=[FALSE IMAGE URL] AlarmTrueImage=[TRUE IMAGE URL]`
+`az container create --resource-group [RESOURCE GROUP] --name [NAME] --image gdavi/alarms-iot-simulator --restart-policy Never --environment-variables AlarmTopic=[TOPIC URL] AlarmResource=[RESOURCE ID] AlarmKey=[TOPIC KEY] AlarmImageRoot=[IMAGES ROOT URL]`
 
 To stop and delete in Azure Container Instance via the Azure CLI or command shell:
 
