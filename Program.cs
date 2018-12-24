@@ -16,7 +16,7 @@ namespace alarms
         private static string _eventAegSasKey = null;
 
         // Speed of event publishing, ms between each event
-        private static int _eventInterval = 10000;
+        private static int _eventInterval = 30000;
 
         // Image location and total number  
         private static string _alarmImageRoot = null;
