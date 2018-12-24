@@ -18,9 +18,10 @@ namespace alarms
         // Speed of event publishing, ms between each event
         private static int _eventInterval = 10000;
 
-        // Images    
+        // Image location and total number  
         private static string _alarmImageRoot = null;
-        private static int _alarmImageNumber = 2;
+        private static int _alarmImageNumber = 20;
+
         // Locations for simulated IOT devices
         private static int _numberDevices = 10;
 
@@ -66,9 +67,9 @@ namespace alarms
             "\nAlarmResource: The path to the resource in the form: /subscriptions/[your subscription id]/resourceGroups/[your resource group name]/providers/Microsoft.EventGrid/topics/[your EventGrid topic name]." +
             "\nAlarmKey: The Event Grid Topic key." + 
             "\nAlarmImageRoot: The URL to the source of the alarm images. Each image in the folder must be named photoXX.png where XX = 01,02 etc.." +
-            "\nAlarmImageNumber: The number of images in the image URL. Must be 2 or more." + 
             "\n\nOptional environment variables" +
             "\n------------------------------" + 
+            "\nAlarmImageNumber: The number of images in the image URL. Minimum of 2, default = 20." + 
             "\n\nAlarmInterval: The ms between alarm events, default = 10000." +
             "\nAlarmNumDevices: The number of alarms, default = 10." +
             "\nAlarmMaxLat AlarmMinLat AlarmMaxLong AlarmMinLong - Describes the area within which random cordinates will be created, default = central England." +
@@ -85,14 +86,12 @@ namespace alarms
             if (Environment.GetEnvironmentVariable("AlarmTopic") != null &&
                 Environment.GetEnvironmentVariable("AlarmResource") != null &&
                 Environment.GetEnvironmentVariable("AlarmKey") != null &&
-                Environment.GetEnvironmentVariable("AlarmImageRoot") != null &&
-                Environment.GetEnvironmentVariable("AlarmImageNumber") != null)
+                Environment.GetEnvironmentVariable("AlarmImageRoot") != null)
             {
                 _eventTopicEndpoint = Environment.GetEnvironmentVariable("AlarmTopic");
                 _eventTopicResource = Environment.GetEnvironmentVariable("AlarmResource");
                 _eventAegSasKey = Environment.GetEnvironmentVariable("AlarmKey");
                 _alarmImageRoot = Environment.GetEnvironmentVariable("AlarmImageRoot");
-                int.TryParse(Environment.GetEnvironmentVariable("AlarmImageNumber"), out _alarmImageNumber);
             }
             else
             {
@@ -104,6 +103,12 @@ namespace alarms
             // Optional environment variables
             try
             {
+                // If the interval is supplied, override the default
+                if ( Environment.GetEnvironmentVariable("AlarmImageNumber") != null)
+                {
+                    int.TryParse(Environment.GetEnvironmentVariable("AlarmImageNumber"), out _alarmImageNumber);
+                }
+
                 // If the interval is supplied, override the default
                 if ( Environment.GetEnvironmentVariable("AlarmInterval") != null)
                 {
