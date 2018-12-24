@@ -49,12 +49,12 @@ The following environment variables are required to be set before running from t
 - AlarmTopic - The Event Grid Topic EndPoint.
 - AlarmResource - The path to the resource in the form: /subscriptions/[your subscription id]/resourceGroups/[your resource group name]/providers/Microsoft.EventGrid/topics/[your EventGrid topic name].
 - AlarmKey - The Event Grid Topic key.
-- AlarmImageRoot - The URL to the source of the alarm images. Each image in the folder must be named photoXX.png where XX = 01,02 etc..
+- AlarmImageRoot - The URL to the source of the alarm images. Each image in the folder must be named photoXX.png where XX = 01, 02, 03 etc..
 
 The following environment variables are optional:
 
 - AlarmImageNumber - The number of images in the image URL. Minimum of 2, default = 20.
-- AlarmInterval - The ms between alarm events, default = 10000.
+- AlarmInterval - The ms between alarm events, default = 30000.
 - AlarmNumDevices - The number of alarms, default = 10.
 - AlarmMaxLat AlarmMinLat AlarmMaxLong AlarmMinLong - Describes the area within which random cordinates will be created, default = central England. Latitude and Longitude must all be decimal with 6 significant points and all 4 must be provided.
 - AlarmStatusWeight - Must be more than 2, the lower the weighting the proportionally more true alarm images. Default = 10.
