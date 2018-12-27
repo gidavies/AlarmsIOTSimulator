@@ -146,6 +146,8 @@ namespace alarms
                 return;
             }
             
+            _alarmImageRoot = ValidateURL(_alarmImageRoot);
+
             Console.Write("Alarm settings: " + "\n Topic EndPoint: " + _eventTopicEndpoint + 
             "\n Topic Key (last chars): " + _eventAegSasKey.Substring(_eventAegSasKey.Length - 4, 4) + "\n Topic Resource: " + _eventTopicResource + 
             "\n Image URL: " + _alarmImageRoot);
@@ -355,6 +357,16 @@ namespace alarms
             }
             
             return stop;
+        }
+
+        private static string ValidateURL(string UrlToCheck)
+        {
+            string endsWith = UrlToCheck.Substring(UrlToCheck.Length - 1);
+            if (!endsWith.Equals("/"))
+            {
+                UrlToCheck = UrlToCheck + "/";
+            }
+            return UrlToCheck;
         }
     }
 }
