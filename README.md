@@ -47,7 +47,6 @@ You will need an [Azure Event Grid topic](https://docs.microsoft.com/en-us/azure
 The following environment variables are required to be set before running from the command line:
 
 - AlarmTopic - The Event Grid Topic EndPoint.
-- AlarmResource - The path to the resource in the form: /subscriptions/[your subscription id]/resourceGroups/[your resource group name]/providers/Microsoft.EventGrid/topics/[your EventGrid topic name].
 - AlarmKey - The Event Grid Topic key.
 - AlarmImageRoot - The URL to the source of the alarm images. Each image in the folder must be named photoXX.png where XX = 01, 02, 03 etc..
 
@@ -58,7 +57,7 @@ The following environment variables are optional:
 - AlarmNumDevices - The number of alarms, default = 10.
 - AlarmMaxLat AlarmMinLat AlarmMaxLong AlarmMinLong - Describes the area within which random cordinates will be created, default = central England. Latitude and Longitude must all be decimal with 6 significant points and all 4 must be provided.
 - AlarmStatusWeight - Must be more than 2, the lower the weighting the proportionally more true alarm images. Default = 10.
-- AlarmMaxRunTime - The maximum number of minutes for the events to be generated, zero for no max. The simulator will stop after this time. Default = 10.
+- AlarmMaxRunTime - The maximum number of minutes for the events to be generated, zero for no max. The simulator will stop after this time. Default = 60.
 
 Then from the command line run:
 
@@ -70,11 +69,11 @@ You can also build a Docker image using the included Dockerfile such as:
 
 The [image is available on DockerHub](https://hub.docker.com/r/gdavi/alarms-iot-simulator/) to use immediately. To pass the environment variables into the docker container you can use the following:
 
-`docker run -e AlarmTopic="[TOPIC URL]" -e AlarmResource="[RESOURCE ID]" -e AlarmKey="[TOPIC KEY]" -e AlarmImageRoot="[IMAGES ROOT URL]" gdavi/alarms-iot-simulator`
+`docker run -e AlarmTopic="[TOPIC URL]" -e AlarmKey="[TOPIC KEY]" -e AlarmImageRoot="[IMAGES ROOT URL]" gdavi/alarms-iot-simulator`
 
 To run in Azure Container Instance via the Azure CLI or command shell:
 
-`az container create --resource-group [RESOURCE GROUP] --name [NAME] --image gdavi/alarms-iot-simulator --restart-policy Never --environment-variables AlarmTopic=[TOPIC URL] AlarmResource=[RESOURCE ID] AlarmKey=[TOPIC KEY] AlarmImageRoot=[IMAGES ROOT URL]`
+`az container create --resource-group [RESOURCE GROUP] --name [NAME] --image gdavi/alarms-iot-simulator --restart-policy Never --environment-variables AlarmTopic=[TOPIC URL] AlarmKey=[TOPIC KEY] AlarmImageRoot=[IMAGES ROOT URL]`
 
 To stop and delete in Azure Container Instance via the Azure CLI or command shell:
 

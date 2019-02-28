@@ -2,7 +2,6 @@ namespace alarms
 {
     public class AlarmEvent
     {
-        public string topic { get; set; }
         public string subject { get; set; }
         public string id { get; set; }
         public string eventType { get; set; }

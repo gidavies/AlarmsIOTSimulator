@@ -12,7 +12,6 @@ namespace alarms
 
         // Event Grid
         private static string _eventTopicEndpoint = null;
-        private static string _eventTopicResource = null;
         private static string _eventAegSasKey = null;
 
         // Speed of event publishing, ms between each event
@@ -31,7 +30,7 @@ namespace alarms
 
         // Maximum time for the events to be generated (in minutes)
         // 0 equates to no maximum (run forever)
-        private static int _maxRunTime = 10;
+        private static int _maxRunTime = 60;
         private static DateTime _endTime;
 
         // Hold boundary conditions for longitude and latitude
@@ -64,7 +63,6 @@ namespace alarms
             "\nRequired environment variables" + 
             "\n------------------------------" + 
             "\n\nAlarmTopic: The Event Grid Topic EndPoint." +
-            "\nAlarmResource: The path to the resource in the form: /subscriptions/[your subscription id]/resourceGroups/[your resource group name]/providers/Microsoft.EventGrid/topics/[your EventGrid topic name]." +
             "\nAlarmKey: The Event Grid Topic key." + 
             "\nAlarmImageRoot: The URL to the source of the alarm images. Each image in the folder must be named photoXX.png where XX = 01,02 etc.." +
             "\n\nOptional environment variables" +
@@ -84,12 +82,10 @@ namespace alarms
             
             // Required environment variables
             if (Environment.GetEnvironmentVariable("AlarmTopic") != null &&
-                Environment.GetEnvironmentVariable("AlarmResource") != null &&
                 Environment.GetEnvironmentVariable("AlarmKey") != null &&
                 Environment.GetEnvironmentVariable("AlarmImageRoot") != null)
             {
                 _eventTopicEndpoint = Environment.GetEnvironmentVariable("AlarmTopic");
-                _eventTopicResource = Environment.GetEnvironmentVariable("AlarmResource");
                 _eventAegSasKey = Environment.GetEnvironmentVariable("AlarmKey");
                 _alarmImageRoot = Environment.GetEnvironmentVariable("AlarmImageRoot");
             }
@@ -149,10 +145,10 @@ namespace alarms
             _alarmImageRoot = ValidateURL(_alarmImageRoot);
 
             Console.Write("Alarm settings: " + "\n Topic EndPoint: " + _eventTopicEndpoint + 
-            "\n Topic Key (last chars): " + _eventAegSasKey.Substring(_eventAegSasKey.Length - 4, 4) + "\n Topic Resource: " + _eventTopicResource + 
+            "\n Topic Key (last chars): " + _eventAegSasKey.Substring(_eventAegSasKey.Length - 4, 4) + 
             "\n Image URL: " + _alarmImageRoot);
             
-            Console.Write("\nAlarms will be sent every " + _eventInterval + " ms.");
+            Console.Write("\nAlarms will be sent randomly within each " + _eventInterval + " ms.");
             Console.Write("\nThe simulator will stop after " + _maxRunTime + " mins.\n");
 
             SetLocationBoundaries(_maxLat, _minLat, _maxLong, _minLong);
@@ -185,42 +181,43 @@ namespace alarms
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             _client.DefaultRequestHeaders.Add("aeg-sas-key", _eventAegSasKey);
 
+            Random randomTimer = new Random(Guid.NewGuid().GetHashCode());
+                    
             while(true)
             {
                 try
                 {    
-                    // For each device, send a new alarm, keeping the location static
-                    for (int i = 0; i < _devices.Length; i++)
-                    {
-                        _devices[i].Image = GetAlarmImage();
-                        _devices[i].Text = "Alarm event raised";
+                    // Choose a random device to send an event from
+                    Random randomDevice = new Random(Guid.NewGuid().GetHashCode());
+                    int deviceId = randomDevice.Next(0, _devices.Length);
+                    
+                    _devices[deviceId].Image = GetAlarmImage();
+                    _devices[deviceId].Text = "Alarm event raised";
                         
-                        // Create a new event
-                        AlarmEvent alarmEvent = new AlarmEvent {
-                            topic = _eventTopicResource,
-                            subject = "Alarm", 
-                            id = Guid.NewGuid().ToString(),
-                            eventType = "recordInserted", 
-                            eventTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFK"),
-                            data = _devices[i] };
+                    // Create a new event
+                    AlarmEvent alarmEvent = new AlarmEvent {
+                        subject = "Alarm", 
+                        id = Guid.NewGuid().ToString(),
+                        eventType = "recordInserted", 
+                        eventTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.FFFFFFK"),
+                        data = _devices[deviceId] };
 
-                        // Event Grid data is an array with one element
-                        AlarmEvent[] alarmEvents = { alarmEvent };
+                    // Event Grid data is an array with one element
+                    AlarmEvent[] alarmEvents = { alarmEvent };
 
-                        // Post the data
-                        HttpResponseMessage response = await _client.PostAsync(_eventTopicEndpoint, new JsonContent(alarmEvents));
+                    // Post the data
+                    HttpResponseMessage response = await _client.PostAsync(_eventTopicEndpoint, new JsonContent(alarmEvents));
 
-                        if (response.IsSuccessStatusCode)
-                        {
-                            Console.WriteLine("\n Device " + _devices[i].DeviceId
-                            + ". Longitude: " + _devices[i].Longitude 
-                            + ". Latitude: " + _devices[i].Latitude
-                            + ". Image: " + _devices[i].Image);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Post unsuccessful: " + response.StatusCode + " " + response.ReasonPhrase);
-                        }
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine("\n Device " + _devices[deviceId].DeviceId
+                        + ". Longitude: " + _devices[deviceId].Longitude 
+                        + ". Latitude: " + _devices[deviceId].Latitude
+                        + ". Image: " + _devices[deviceId].Image);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Post unsuccessful: " + response.StatusCode + " " + response.ReasonPhrase);
                     }
                 }
                 catch (Exception e)
@@ -235,7 +232,7 @@ namespace alarms
                     Environment.Exit(1);
                 }
                 // Pause specified interval before the next batch of alarms
-                Thread.Sleep(_eventInterval);
+                Thread.Sleep(randomTimer.Next(0, _eventInterval));
             }
         }
 
